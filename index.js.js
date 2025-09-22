@@ -15,11 +15,11 @@ const app = express();
 
 // Middlewares
 app.use(cors());
-app.use(fileUpload({
-  useTempFiles : true,
-  tempFileDir : 'C:\\Users\\Lenovo\\Desktop\\backend\\tmp\\' // Corrected path with double backslashes
-}));
 app.use(express.json());
+// app.use(fileUpload({
+//   useTempFiles : true,
+//   tempFileDir : 'C:\\Users\\Lenovo\\Desktop\\backend\\tmp\\' // Corrected path with double backslashes
+// }));
 
 // Rutas
 app.use('/api/users', require('./routes/userRoutes'));
