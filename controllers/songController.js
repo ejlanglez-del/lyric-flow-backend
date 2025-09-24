@@ -97,6 +97,46 @@ const updateSong = asyncHandler(async (req, res) => {
   res.json(updatedSong);
 });
 
+const getNextExamDelay = (level) => {
+  const hours = 1000 * 60 * 60;
+  const days = hours * 24;
+  switch (level) {
+    case 1: return hours * 3; // 3 hours
+    case 2: return days * 1;  // 1 day
+    case 3: return days * 2;
+    case 4: return days * 5;
+    case 5: return days * 15;
+    case 6: return days * 30;
+    case 7: return days * 90; // 3 months
+    case 8: return days * 240; // 8 months
+    case 9: return days * 730; // 2 years
+    default: return hours * 3;
+  }
+};
+
+const completeExam = asyncHandler(async (req, res) => {
+  const song = await Song.findById(req.params.id);
+
+  if (song) {
+    if (song.user.toString() !== req.user._id.toString()) {
+      res.status(401);
+      throw new Error('No autorizado para actualizar esta canción');
+    }
+
+    const newLevel = (song.examLevel || 0) + 1;
+    const delay = getNextExamDelay(newLevel);
+    
+    song.examLevel = newLevel;
+    song.nextExamAvailableAt = Date.now() + delay;
+
+    const updatedSong = await song.save();
+    res.json(updatedSong);
+  } else {
+    res.status(404);
+    throw new Error('Canción no encontrada');
+  }
+});
+
 // @Telefono moto\Download\Descargar Notion Mobile APK - Última Versión 2024    Transcribe audio
 // @backend\routes\songRoutes.js   POST /api/songs/transcribe-audio
 // @Native Access.lnk Access.lnk  Private
@@ -165,4 +205,4 @@ const transcribeAudio = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { getSongs, addSong, deleteSong, transcribeAudio, updateSongCompletion, updateSong };
+module.exports = { getSongs, addSong, deleteSong, transcribeAudio, updateSongCompletion, updateSong, completeExam };

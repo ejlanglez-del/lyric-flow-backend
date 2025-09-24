@@ -17,6 +17,9 @@ router.route('/:id')
 // /api/songs/:id/complete
 router.put('/:id/complete', protect, songController.updateSongCompletion);
 
+// /api/songs/:id/complete-exam
+router.put('/:id/complete-exam', protect, songController.completeExam);
+
 // /api/songs/transcribe-audio
 router.route('/transcribe-audio')
   .post(songController.transcribeAudio);

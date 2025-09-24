@@ -29,6 +29,14 @@ const songSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    examLevel: {
+      type: Number,
+      default: 0,
+    },
+    nextExamAvailableAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
