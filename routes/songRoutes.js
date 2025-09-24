@@ -12,13 +12,19 @@ router.route('/')
 // /api/songs/:id
 router.route('/:id')
   .delete(protect, songController.deleteSong)
-  .put(protect, songController.updateSong); // Added PUT route
+  .put(protect, songController.updateSong);
 
 // /api/songs/:id/complete
 router.put('/:id/complete', protect, songController.updateSongCompletion);
 
 // /api/songs/:id/complete-exam
 router.put('/:id/complete-exam', protect, songController.completeExam);
+
+// /api/songs/:id/lyrics/:paragraphIndex/error
+router.post('/:id/lyrics/:paragraphIndex/error', protect, songController.logParagraphError);
+
+// /api/songs/:id/lyrics/:paragraphIndex/errors
+router.delete('/:id/lyrics/:paragraphIndex/errors', protect, songController.clearParagraphErrors);
 
 // /api/songs/transcribe-audio
 router.route('/transcribe-audio')

@@ -15,16 +15,16 @@ const songSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-        lyrics: {
-          type: String,
-          required: [true, [true, 'Please add lyrics']],
-        },
-        completedSessions: {
-          type: Number,
-          required: false,
-          default: 0,
-        },
-        // ... other fields might be here
+    lyrics: [{
+      paragraph: {
+        type: String,
+        required: true,
+      },
+      errorHistory: {
+        type: [Date],
+        default: [],
+      },
+    }],
     completedSessions: {
       type: Number,
       default: 0,

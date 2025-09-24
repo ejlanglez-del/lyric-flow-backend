@@ -23,11 +23,18 @@ const addSong = asyncHandler(async (req, res) => {
     throw new Error('Por favor, ingresa todos los campos');
   }
 
+  let lyricsData = [];
+  if (typeof lyrics === 'string') {
+    lyricsData = lyrics.split('\n').filter(p => p.trim() !== '').map(p => ({ paragraph: p }));
+  } else if (Array.isArray(lyrics)) {
+    lyricsData = lyrics;
+  }
+
   const song = new Song({
     user: req.user._id,
     title,
     artist,
-    lyrics,
+    lyrics: lyricsData,
   });
 
   const createdSong = await song.save();
@@ -91,7 +98,18 @@ const updateSong = asyncHandler(async (req, res) => {
   // Update song fields
   song.title = req.body.title || song.title;
   song.artist = req.body.artist || song.artist;
-  song.lyrics = req.body.lyrics || song.lyrics;
+  
+  if (req.body.lyrics) {
+    let lyricsData;
+    if (typeof req.body.lyrics === 'string') {
+        lyricsData = req.body.lyrics.split('\n').filter(p => p.trim() !== '').map(p => ({ paragraph: p }));
+    } else if (Array.isArray(req.body.lyrics)) {
+        lyricsData = req.body.lyrics;
+    } else {
+        lyricsData = song.lyrics;
+    }
+    song.lyrics = lyricsData;
+  }
 
   const updatedSong = await song.save();
   res.json(updatedSong);
@@ -131,6 +149,54 @@ const completeExam = asyncHandler(async (req, res) => {
 
     const updatedSong = await song.save();
     res.json(updatedSong);
+  } else {
+    res.status(404);
+    throw new Error('Canción no encontrada');
+  }
+});
+
+const logParagraphError = asyncHandler(async (req, res) => {
+  const { id, paragraphIndex } = req.params;
+  const song = await Song.findById(id);
+
+  if (song) {
+    if (song.user.toString() !== req.user._id.toString()) {
+      res.status(401);
+      throw new Error('No autorizado para actualizar esta canción');
+    }
+
+    if (song.lyrics && song.lyrics[paragraphIndex]) {
+      song.lyrics[paragraphIndex].errorHistory.push(new Date());
+      const updatedSong = await song.save();
+      res.json(updatedSong);
+    } else {
+      res.status(404);
+      throw new Error('Párrafo no encontrado');
+    }
+  } else {
+    res.status(404);
+    throw new Error('Canción no encontrada');
+  }
+});
+
+const clearParagraphErrors = asyncHandler(async (req, res) => {
+  const { id, paragraphIndex } = req.params;
+  const song = await Song.findById(id);
+
+  if (song) {
+    if (song.user.toString() !== req.user._id.toString()) {
+      res.status(401);
+      throw new Error('No autorizado para actualizar esta canción');
+    }
+
+    if (song.lyrics && song.lyrics[paragraphIndex]) {
+      song.lyrics[paragraphIndex].errorHistory = []; // Reset the error history
+      const updatedSong = await song.save();
+      res.json(updatedSong);
+    } else {
+      res.status(404);
+      throw new Error('Párrafo no encontrado');
+    }
   } else {
     res.status(404);
     throw new Error('Canción no encontrada');
@@ -205,4 +271,4 @@ const transcribeAudio = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { getSongs, addSong, deleteSong, transcribeAudio, updateSongCompletion, updateSong, completeExam };
+module.exports = { getSongs, addSong, deleteSong, transcribeAudio, updateSongCompletion, updateSong, completeExam, logParagraphError, clearParagraphErrors };
