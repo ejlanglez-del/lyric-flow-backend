@@ -25,7 +25,7 @@ const addSong = asyncHandler(async (req, res) => {
 
   let lyricsData = [];
   if (typeof lyrics === 'string') {
-    lyricsData = lyrics.split('\n').filter(p => p.trim() !== '').map(p => ({ paragraph: p }));
+    lyricsData = lyrics.split(/\n\s*\n/).filter(p => p.trim() !== '').map(p => ({ paragraph: p }));
   } else if (Array.isArray(lyrics)) {
     lyricsData = lyrics;
   }
@@ -102,7 +102,7 @@ const updateSong = asyncHandler(async (req, res) => {
   if (req.body.lyrics) {
     let lyricsData;
     if (typeof req.body.lyrics === 'string') {
-        lyricsData = req.body.lyrics.split('\n').filter(p => p.trim() !== '').map(p => ({ paragraph: p }));
+        lyricsData = req.body.lyrics.split(/\n\s*\n/).filter(p => p.trim() !== '').map(p => ({ paragraph: p }));
     } else if (Array.isArray(req.body.lyrics)) {
         lyricsData = req.body.lyrics;
     } else {
